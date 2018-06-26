@@ -1,28 +1,19 @@
-.App {
-  text-align: center;
+#search {
+  height: 34px;
+  font-weight: 400;
+  font-family: arial;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  width: 100%;
 }
-
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 80px;
+#movieGrid {
+  display: inline;
 }
-
-.App-header {
-  background-color: #222;
-  height: 150px;
-  padding: 20px;
-  color: white;
+.movies {
+  display: inline-block;
+  padding-right: 10px;
+  padding-left: 10px;
 }
-
-.App-title {
-  font-size: 1.5em;
-}
-
-.App-intro {
-  font-size: large;
-}
-
-@keyframes App-logo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+.movies img {
+  height: 450px;
 }
