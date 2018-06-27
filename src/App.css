@@ -1,22 +1,52 @@
-#search {
-  height: 34px;
-  font-weight: 400;
+@import url("//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css");
+.App {
+  max-width: 960px;
+  margin: 0 auto;
   font-family: arial;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+/* Search Bar  */
+.search {
+  position: relative;
+}
+.search .fa-search {
+  position: absolute;
+  top: 32px;
+  right: 15px;
+}
+.search input {
+  height: 34px;
+  font-size: 16px;
+  padding-left: 20px;
+  padding-right: 20px;
   margin-top: 20px;
   margin-bottom: 20px;
-  width: 100%;
+  width: 920px;
 }
+
+/* Grid  */
 #movieGrid {
   display: inline;
 }
+
+/* Movie Tile */
 .movies {
   display: inline-block;
   padding-right: 10px;
   padding-left: 10px;
 }
-.movies img {
+
+.movies img, .noImage {
+  width: 300px;
   height: 450px;
 }
-a {
+a,
+.fa-search {
   cursor: pointer;
+}
+
+.title {
+  text-align: center;
 }
