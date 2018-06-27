@@ -2,10 +2,17 @@
   "name": "lattice",
   "version": "0.1.0",
   "private": true,
+  "proxy": {
+    "/api": {
+      "target": "http://localhost:8080"
+    }
+  },
   "dependencies": {
+    "querystrings": "^0.4.0",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
-    "react-scripts": "1.1.4"
+    "react-scripts": "1.1.4",
+    "request": "^2.87.0"
   },
   "scripts": {
     "start": "react-scripts start",
