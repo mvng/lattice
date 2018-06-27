@@ -6,7 +6,7 @@ class SearchBar extends Component {
     super();
   }
   render() {
-    return(
+    return (
       <div>
         <input id="search"></input>
       </div>
@@ -17,14 +17,28 @@ class SearchBar extends Component {
 class Movie extends Component {
   constructor(props) {
     super(props);
+    this.getMovieUrl = this.getMovieUrl.bind(this);
+  }
+  getMovieUrl() {
+    //For some reason couldnt find a easy way to append url so firing a call to get the homepage
+    fetch('/api/homepage/' + this.props.id)
+      .then((response) => {
+        return response.json();
+      })
+      .then((result) => {
+        window.location = result.homepage;
+      })
+      .catch((err) => {
+        console.error(err)
+      });
   }
   render() {
     const imageBase = 'https://image.tmdb.org/t/p/w300/';
-
-    return(
-      <div class="movies">
-        <img src={imageBase + this.props.image}></img>
-        <p>{this.props.title}</p>
+    return (
+      <div className="movies">
+        <a onClick={this.getMovieUrl}>
+          <img src={imageBase + this.props.image}></img>
+          <p>{this.props.title}</p></a>
       </div>
     )
   }
@@ -32,20 +46,15 @@ class Movie extends Component {
 class Result extends Component {
   constructor(props) {
     super(props);
-    console.log(this);
-    console.log(this.props);
-
   }
-
   render() {
-    return(
+    return (
       <div id="movieGrid">
-      {this.props.movies.map((res) => {
-        console.log(res);
-        return <Movie title={res.title} image={res.poster_path} />
-      })}
+        {this.props.movies.map((cur, index) => {
+          return <Movie key={index} id={cur.id} title={cur.title} image={cur.poster_path} />
+        })}
       </div>
-     )
+    )
   }
 }
 class App extends Component {
@@ -55,32 +64,47 @@ class App extends Component {
       movies: null,
       loaded: false
     }
-   }
-  componentDidMount() {
-    fetch('/api/movie/popular')
-    .then((response) => {
-      return response.json()
-    })
-    .then((result) =>{
-
-      this.setState({
-        movies: result.results,
-        loaded: true
-      });
-    })
-    .catch((err)=>{
-      // console.error(err)
-    });
+    this.handleScroll = this.handleScroll.bind(this);
   }
+  componentDidMount() {
+    window.addEventListener("scroll", this.handleScroll);
+
+    fetch('/api/movie/popular')
+      .then((response) => {
+        return response.json();
+      })
+      .then((result) => {
+
+        this.setState({
+          movies: result.results,
+          loaded: true
+        });
+      })
+      .catch((err) => {
+        // console.error(err)
+      });
+  }
+  componentWillUnmount() {
+    window.removeEventListener("scroll", this.handleScroll);
+  }
+
+  handleScroll() {
+    if ((window.innerHeight + Math.ceil(window.pageYOffset)) >= document.body.offsetHeight) {
+      //user is currently at the bottom
+      //TODO - fire another call to append to movie grid
+    }
+  }
+
   render() {
     let { movies, loaded } = this.state;
     return (
-      <div className="App">
+      <div className="App" onScroll={this.handleScroll.bind(this)}>
         <SearchBar />
-        {loaded ? <Result movies={movies}/> : '' }
+        {loaded ? <Result movies={movies} /> : ''}
       </div>
     );
   }
 }
 
 export default App;
+

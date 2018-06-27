@@ -17,3 +17,6 @@
 .movies img {
   height: 450px;
 }
+a {
+  cursor: pointer;
+}
