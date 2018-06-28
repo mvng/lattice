@@ -61,7 +61,7 @@ class App extends Component {
           //Since success, lets update the state of the page
           this.setState({ currentPage: currentPage });
 
-          var curr = this.state.movies;
+          let curr = this.state.movies;
 
           for (let i in result.results) {
             curr.push(result.results[i]);
