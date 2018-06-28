@@ -6,57 +6,82 @@ const qs = require('querystrings')
 const DB_API = 'https://api.themoviedb.org/3';
 const API = '5b19221d20b929615d236692cea743e4';
 const LANGUAGE = 'en-U&S';
+
+//Caching url here so we dont overload api requests
+//also faster querying
+//TODO save this in a DB so we dont have to rebuild on restart
+
 const cache = {
-  popular: null,
   homepageLinks: {},
-  query: {}
+  popularTime: Date.now()
 };
-
-
 
 app.use(express.static(path.join(__dirname, 'build')));
 
 app.get('/api/movie/popular', function (req, res) {
+
+    const url = `${DB_API}/movie/popular?${qs.stringify({
+      api_key: API,
+      language: LANGUAGE,
+      page: req.query.page
+    })}`;
+
+  console.log(Date.now(), req.url);
   //gets any popular movie 
-  if (cache.popular) {
-    res.send(cache.popular);
+  if (typeof cache[url] !== "undefined" && cache.popularTime + 900000 > Date.now()) {
+    res.send(cache[url]);
   } else {
-    const url = `${DB_API}/movie/popular?${qs.stringify({api_key: API,language: LANGUAGE})}`;
-    request(url, function (error, response, body) {
+    cache.popularTime = Date.now();
+    //refresh the cache every 15 minutes = 900000
+
+    request(url, function(error, response, body) {
+      cache.popularRefresh = false;
+
       body = JSON.parse(body);
-      cache.popular = body;
-      res.json(cache.popular);
+
+      cache[url] = body;
+
+      res.json(cache[url]);
     });
   }
 
 });
 
 app.get('/api/homepage/:id', function (req, res) {
-  let id = req.params.id;
-  if (cache.homepageLinks[id]) {
-    res.send(cache.homepageLinks[id]);
+  const url = `${DB_API}/movie/${req.params.id}?${qs.stringify({
+    api_key: API,
+    language: LANGUAGE
+  })}`;
+  console.log(Date.now(), req.url);
+
+  if (typeof cache[url] !== "undefined") {
+    res.send(cache[url]);
   } else {
-    const url = `${DB_API}/movie/${id}?${qs.stringify({api_key: API, language: LANGUAGE})}`;
-    request(url, function (error, response, body) {
+    request(url, function(error, response, body) {
       let homepage = JSON.parse(body).homepage;
-      cache.homepageLinks[id] = { homepage: homepage };
-      res.send(cache.homepageLinks[id]);
+      cache[url] = { homepage: homepage };
+      res.send(cache[url]);
     });
   }
 })
 
-app.get('/api/search/movie/:query', function(req, res) {
+app.get('/api/search/movie', function(req, res) {
 
-  let { query } = req.params;
-  if(cache.query[query]) {
-    res.send(cache.query[query]);
-  } 
-  else {
-    const url = `${DB_API}/search/movie/?${qs.stringify({ api_key: API, language: LANGUAGE, query: query})}`;
-    request(url, function (error, response, body) {
+  const url = `${DB_API}/search/movie/?${qs.stringify({
+    api_key: API,
+    language: LANGUAGE,
+    query: req.query.query,
+    page: req.query.page
+  })}`;
+  console.log(Date.now(), req.url);
+
+  if (typeof cache[url] !== "undefined") {
+    res.send(cache[url]);
+  } else {
+    request(url, function(error, response, body) {
       body = JSON.parse(body);
-      cache.query[query] = body.results;
-      res.json(cache.query[query]);
+      cache[url] = body.results;
+      res.send(cache[url]);
     });
   }
 })

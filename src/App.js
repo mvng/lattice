@@ -8,23 +8,22 @@ class App extends Component {
     super();
     this.state = {
       movies: null,
-      loaded: false
+      loaded: false,
+      currentPage: 1,
+      currentUrl: "/api/movie/popular"
     };
     this.handleScroll = this.handleScroll.bind(this);
     this.search = this.search.bind(this);
   }
+
   componentDidMount() {
     window.addEventListener("scroll", this.handleScroll);
-
-    fetch("/api/movie/popular")
+    fetch("/api/movie/popular?page=" + this.state.currentPage)
       .then(response => {
         return response.json();
       })
       .then(result => {
-        this.setState({
-          movies: result.results,
-          loaded: true
-        });
+        this.setState({ movies: result.results, loaded: true });
       })
       .catch(err => {});
   }
@@ -32,7 +31,8 @@ class App extends Component {
     window.removeEventListener("scroll", this.handleScroll);
   }
   search(query) {
-    fetch("/api/search/movie/" + query)
+    this.setState({ currentUrl: "/api/search/movie", currentPage: 1 });
+    fetch("/api/search/movie?query=" + query)
       .then(response => {
         return response.json();
       })
@@ -48,8 +48,26 @@ class App extends Component {
       window.innerHeight + Math.ceil(window.pageYOffset) >=
       document.body.offsetHeight
     ) {
+      // window.scrollTo(0, window.innerHeight*.95);
       //user is currently at the bottom
-      //TODO - fire another call to append to movie grid
+      let currentPage = this.state.currentPage + 1;
+      this.setState({ currentPage: currentPage });
+
+      //assigns dynamic url for inifinite scrolling
+      fetch(this.state.currentUrl + "?page=" + this.state.currentPage)
+        .then(response => {
+          return response.json();
+        })
+        .then(result => {
+          var curr = this.state.movies;
+
+          for (let i in result.results) {
+            curr.push(result.results[i]);
+          }
+
+          this.setState({ movies: curr });
+        })
+        .catch(err => {});
     }
   }
 
