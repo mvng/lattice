@@ -51,14 +51,16 @@ class App extends Component {
       // window.scrollTo(0, window.innerHeight*.95);
       //user is currently at the bottom
       let currentPage = this.state.currentPage + 1;
-      this.setState({ currentPage: currentPage });
 
       //assigns dynamic url for inifinite scrolling
-      fetch(this.state.currentUrl + "?page=" + this.state.currentPage)
+      fetch(this.state.currentUrl + "?page=" + currentPage)
         .then(response => {
           return response.json();
         })
         .then(result => {
+          //Since success, lets update the state of the page
+          this.setState({ currentPage: currentPage });
+
           var curr = this.state.movies;
 
           for (let i in result.results) {
@@ -67,7 +69,8 @@ class App extends Component {
 
           this.setState({ movies: curr });
         })
-        .catch(err => {});
+        .catch(err => {
+        });
     }
   }
 
